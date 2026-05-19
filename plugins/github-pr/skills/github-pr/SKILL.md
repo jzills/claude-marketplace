@@ -42,7 +42,7 @@ git log --oneline $(git merge-base HEAD origin/$(gh repo view --json defaultBran
 If the current branch equals the repo's default branch **and** there are uncommitted changes, do not proceed to push or create a PR yet. The user likely forgot to branch first. Handle it automatically:
 
 1. Check whether `conventional-commits` appears in the available skills list.
-   - If it does, invoke it via the Skill tool — it will handle branch naming and committing. Resume from Step 2 once it's done.
+   - If it does, invoke it via the Skill tool with args explicitly requesting a new branch **and** a commit (e.g., `"create a new branch and commit: <brief description of the changes>"`). This ensures conventional-commits creates a branch rather than committing directly to the default branch. Resume from Step 2 once it's done.
    - If it does not, run the fallback steps below.
 
 2. **Fallback — branch, commit, push:**
