@@ -151,29 +151,31 @@ Individual test classes inherit it and get a configured `HttpClient` with zero b
 ```csharp
 using NUnit.Framework;
 
-[TestFixture]
-public abstract class IntegrationTestBase : IAsyncLifetime
+public abstract class IntegrationTestBase
 {
-    private readonly InfrastructureFixture _infrastructure = new();
+    protected InfrastructureFixture Infrastructure { get; private set; } = null!;
     protected IntegrationWebApplicationFactory Factory { get; private set; } = null!;
     protected HttpClient Client { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    [OneTimeSetUp]
+    public async Task BaseOneTimeSetUp()
     {
-        await _infrastructure.InitializeAsync();
+        Infrastructure = new InfrastructureFixture();
+        await Infrastructure.InitializeAsync();
 
         Factory = new IntegrationWebApplicationFactory(
-            _infrastructure.PostgresConnectionString
+            Infrastructure.PostgresConnectionString
         );
 
         Client = Factory.CreateClient();
     }
 
-    public async Task DisposeAsync()
+    [OneTimeTearDown]
+    public async Task BaseOneTimeTearDown()
     {
         Client.Dispose();
         await Factory.DisposeAsync();
-        await _infrastructure.DisposeAsync();
+        await Infrastructure.DisposeAsync();
     }
 }
 

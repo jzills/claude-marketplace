@@ -6,6 +6,8 @@ Start with the **header**, then append one **service snippet** per detected depe
 Run with `docker compose up -d` before executing your integration tests.
 Run `docker compose down` to clean up.
 
+> **Note:** All snippets use 2-space indentation. YAML is whitespace-sensitive — preserve indentation exactly when copying service blocks.
+
 ---
 
 ## Header / Structure Template
@@ -121,7 +123,9 @@ Connection string: `localhost:6379`
       retries: 5
 ```
 
-Connection string: `mongodb://testuser:testpassword@localhost:27017`
+Connection string: `mongodb://testuser:testpassword@localhost:27017/testdb?authSource=admin`
+
+> `authSource=admin` is required because `MONGO_INITDB_ROOT_USERNAME` creates the user in the `admin` database.
 
 ---
 
@@ -131,23 +135,27 @@ Kafka requires a Zookeeper sidecar. Both snippets must be included together.
 
 ```yaml
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.6.1
     ports:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
+  # From host use localhost:29092. From other containers use kafka:9092.
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.6.1
     ports:
-      - "9092:9092"
+      - "29092:29092"
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     healthcheck:
@@ -157,7 +165,8 @@ Kafka requires a Zookeeper sidecar. Both snippets must be included together.
       retries: 5
 ```
 
-Bootstrap address: `localhost:9092`
+Bootstrap address (from host): `localhost:29092`  
+Bootstrap address (container-to-container): `kafka:9092`
 
 ---
 

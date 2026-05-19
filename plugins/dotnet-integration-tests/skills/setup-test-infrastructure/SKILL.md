@@ -28,6 +28,7 @@ Read the `.csproj` file and extract every `<PackageReference Include="...">` ent
 ## Step 2 — Detect Required Services
 
 Compare each package name against the lookup table in `references/package-service-map.md`.
+Match using contains — a `.csproj` package name matches a table row if the package name contains the pattern string (case-insensitive).
 
 For each matched package, record:
 - The **service name** (e.g. PostgreSQL, Redis)
