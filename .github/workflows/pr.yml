@@ -1,0 +1,40 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-plugins:
+    name: Validate Plugin Structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check plugin structure
+        run: |
+          failed=0
+          for plugin_dir in plugins/*/; do
+            plugin="${plugin_dir%/}"
+            name=$(basename "$plugin")
+
+            if [ ! -d "$plugin/.claude-plugin" ]; then
+              echo "ERROR: $name is missing .claude-plugin"
+              failed=1
+            fi
+
+            if [ ! -d "$plugin/skills" ]; then
+              echo "ERROR: $name is missing skills/ directory"
+              failed=1
+            fi
+          done
+
+          if [ "$failed" -eq 1 ]; then
+            exit 1
+          fi
+
+          echo "All plugins passed structure validation."
