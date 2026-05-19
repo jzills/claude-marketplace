@@ -1,6 +1,6 @@
 ---
 name: github-pr
-description: Creates GitHub pull requests for the authenticated user using the gh CLI. Use this skill whenever the user wants to open a PR, submit their work for review, push a branch and create a pull request, or says anything like "make a PR", "open a pull request", "create a PR", "submit for review", "push this up and PR it", or "ready to merge". Also trigger when the user has finished a feature or fix and mentions reviewing, merging, or sharing their changes — even if they don't say "pull request" explicitly. This skill handles branch detection, base branch selection, title/description generation from git history, and draft PR mode.
+description: Creates GitHub pull requests for the authenticated user using the gh CLI. Use this skill whenever the user wants to open a PR, submit their work for review, push a branch and create a pull request, or says anything like "make a PR", "open a pull request", "create a PR", "submit for review", "push this up and PR it", or "ready to merge". Also trigger when the user has finished a feature or fix and mentions reviewing, merging, or sharing their changes — even if they don't say "pull request" explicitly. This skill handles branch detection, base branch selection, and title/description generation from git history. Creates regular PRs by default; only creates draft PRs when the user explicitly requests it.
 ---
 
 # GitHub Pull Request Creator
@@ -37,7 +37,28 @@ From this, determine:
 git log --oneline $(git merge-base HEAD origin/$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name') 2>/dev/null)..HEAD 2>/dev/null | head -20
 ```
 
-If there are uncommitted changes, mention them and ask if the user wants to commit them first before opening the PR.
+## Pre-flight: branch and commit (if on default branch)
+
+If the current branch equals the repo's default branch **and** there are uncommitted changes, do not proceed to push or create a PR yet. The user likely forgot to branch first. Handle it automatically:
+
+1. Check whether `conventional-commits` appears in the available skills list.
+   - If it does, invoke it via the Skill tool — it will handle branch naming and committing. Resume from Step 2 once it's done.
+   - If it does not, run the fallback steps below.
+
+2. **Fallback — branch, commit, push:**
+   - Derive a short branch name from the staged/unstaged changes (e.g., `feat/add-login-page`, `fix/null-pointer-crash`). Follow the `type/short-description` convention using lowercase kebab-case.
+   - Run:
+     ```bash
+     git checkout -b <branch-name>
+     git add -A
+     git commit -m "<type>(<scope>): <short description>"
+     git push -u origin HEAD
+     ```
+   - Use a conventional commit message format: `type(scope): description`. Infer the type (`feat`, `fix`, `chore`, etc.) from the nature of the changes.
+
+Tell the user what branch was created and what was committed before moving on.
+
+If the current branch is the default branch but there are **no** uncommitted changes (e.g., commits already exist locally), tell the user: "You're on `<default>` with unpushed commits — this will PR directly from `<default>`, which is unusual. Did you mean to branch first?" and wait for confirmation before continuing.
 
 ## Step 2: Ensure the branch is pushed
 
@@ -85,17 +106,11 @@ test -f .github/PULL_REQUEST_TEMPLATE.md && cat .github/PULL_REQUEST_TEMPLATE.md
 <how to verify this works — fill in if you can infer it, otherwise leave a placeholder>
 ```
 
-Generate a draft and show it to the user before creating the PR. Ask: "Does this look right, or would you like to adjust the title or description?"
+Generate the title and description and proceed directly to Step 4 — do not show the draft or ask for confirmation. Only show the title and description first if the user explicitly asked to review it (e.g., "show me the description", "let me review it first", "I want to check the PR body").
 
-If the user says it's fine or makes only small edits, proceed. If they want a full rewrite, let them provide it.
+## Step 4: Determine draft mode
 
-## Step 4: Ask about draft mode
-
-Ask once: "Should this be a regular PR or a draft?" 
-
-If the user doesn't answer or says "regular", open a regular PR. If they say "draft" or "not ready for review", add `--draft`.
-
-Skip this question if context already makes it clear (e.g., user said "draft PR" upfront).
+Default to a regular PR — do not ask the user about this. Only add `--draft` if the user explicitly said "draft", "draft PR", "not ready for review", or similar language in their original request.
 
 ## Step 5: Create the PR
 
