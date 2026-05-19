@@ -1,4 +1,4 @@
-# claude-marketplace
+# Claude-Marketplace
 
 A Claude Code plugin marketplace (`jzills`) with plugins for git workflows, .NET testing, and skill management.
 
