@@ -56,6 +56,14 @@
       "author": { "name": "Joshua Zillwood" },
       "license": "MIT",
       "keywords": ["security", "risk", "audit", "hooks", "cvss"]
+    },
+    {
+      "name": "semantic-versioning",
+      "source": "./plugins/semantic-versioning",
+      "description": "Determines the next semantic version number by inspecting git tags, release branches, and commit history.",
+      "author": { "name": "Joshua Zillwood" },
+      "license": "MIT",
+      "keywords": ["semver", "versioning", "release", "git-tags", "conventional-commits"]
     }
   ]
 }

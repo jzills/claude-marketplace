@@ -1,0 +1,5 @@
+{
+  "name": "semantic-versioning",
+  "description": "Determines the next semantic version number by inspecting git tags, release branches, and commit history.",
+  "version": "1.0.0"
+}
