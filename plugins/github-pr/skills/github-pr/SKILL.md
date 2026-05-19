@@ -93,18 +93,7 @@ test -f .github/PULL_REQUEST_TEMPLATE.md && cat .github/PULL_REQUEST_TEMPLATE.md
 ```
 
 - If the file exists, read it and use it as the body structure. Fill in every placeholder section using the commit history and changed files — do not leave placeholder text unfilled.
-- If the file does not exist, fall back to the built-in template below:
-
-```
-## Summary
-<1–3 bullets describing what changed and why>
-
-## Changes
-<bullet list of the significant commits or files changed, if non-obvious>
-
-## Test plan
-<how to verify this works — fill in if you can infer it, otherwise leave a placeholder>
-```
+- If the file does not exist, use the default template in `assets/default-pr-template.md`. Fill in every section using the commit history and changed files — do not leave placeholder text unfilled.
 
 Generate the title and description and proceed directly to Step 4 — do not show the draft or ask for confirmation. Only show the title and description first if the user explicitly asked to review it (e.g., "show me the description", "let me review it first", "I want to check the PR body").
 
