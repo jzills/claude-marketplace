@@ -1,0 +1,5 @@
+{
+  "name": "shimmering-forest",
+  "description": "CVSS v3.1-inspired risk auditor that scores every tool call and blocks or warns based on configurable severity thresholds.",
+  "version": "1.0.0"
+}

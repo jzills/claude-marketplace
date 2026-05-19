@@ -1,0 +1,5 @@
+{
+  "name": "skill-changelog",
+  "description": "Maintains a versioned CHANGELOG.md inside any skill directory being created or modified.",
+  "version": "1.0.0"
+}

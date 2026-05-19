@@ -1,0 +1,5 @@
+{
+  "name": "github-pr",
+  "description": "Creates GitHub pull requests using the gh CLI with auto-generated titles and descriptions.",
+  "version": "1.0.0"
+}

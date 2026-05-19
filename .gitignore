@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (for any future JS tooling)
+node_modules/
+npm-debug.log*
+
+# Logs
+*.log
+
+# Secrets / local config
+.env
+.env.local
+secrets.json

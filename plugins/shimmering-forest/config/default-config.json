@@ -1,0 +1,12 @@
+{
+  "block_threshold": "High",
+  "warn_threshold": "Medium",
+  "show_all_scores": false,
+  "block_mode": "hard",
+  "audit_log": true,
+  "audit_log_path": "~/.claude/shimmering-forest.log",
+  "exceptions": {
+    "tool_names": ["Read"],
+    "command_patterns": []
+  }
+}

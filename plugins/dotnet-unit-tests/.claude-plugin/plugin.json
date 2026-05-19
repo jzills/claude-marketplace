@@ -1,0 +1,5 @@
+{
+  "name": "dotnet-unit-tests",
+  "description": "Writes production-quality NUnit + Moq unit tests for C# / .NET code.",
+  "version": "1.0.0"
+}

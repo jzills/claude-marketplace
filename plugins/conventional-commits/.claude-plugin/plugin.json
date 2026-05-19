@@ -1,0 +1,5 @@
+{
+  "name": "conventional-commits",
+  "description": "Enforces Conventional Commits message format and branch naming conventions when creating branches or committing.",
+  "version": "1.0.0"
+}
