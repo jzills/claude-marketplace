@@ -64,6 +64,14 @@
       "author": { "name": "Joshua Zillwood" },
       "license": "MIT",
       "keywords": ["semver", "versioning", "release", "git-tags", "conventional-commits"]
+    },
+    {
+      "name": "release-workflow",
+      "source": "./plugins/release-workflow",
+      "description": "Orchestrates a full release workflow: version detection, release branch creation, CI monitoring, and PR creation.",
+      "author": { "name": "Joshua Zillwood" },
+      "license": "MIT",
+      "keywords": ["release", "workflow", "ci", "github-actions", "semver", "pull-request"]
     }
   ]
 }
