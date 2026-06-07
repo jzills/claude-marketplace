@@ -72,6 +72,14 @@
       "author": { "name": "Joshua Zillwood" },
       "license": "MIT",
       "keywords": ["release", "workflow", "ci", "github-actions", "semver", "pull-request"]
+    },
+    {
+      "name": "dotnet-xml-docs",
+      "source": "./plugins/dotnet-xml-docs",
+      "description": "Writes and reviews XML documentation comments (///) for C# / .NET public APIs.",
+      "author": { "name": "Joshua Zillwood" },
+      "license": "MIT",
+      "keywords": ["dotnet", "csharp", "xml-docs", "documentation", "intellisense"]
     }
   ]
 }
