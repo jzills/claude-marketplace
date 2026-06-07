@@ -18,7 +18,7 @@ A Claude Code plugin marketplace (`jzills`) with plugins for git workflows, .NET
 | `github-pr` | Creates GitHub pull requests using the gh CLI with auto-generated titles and descriptions |
 | `skill-changelog` | Maintains a versioned CHANGELOG.md inside any skill directory being created or modified |
 | `auto-rewind` | Detects test failures and guides a `/rewind` to a clean checkpoint instead of fixing forward |
-| `shimmering-forest` | CVSS v3.1-inspired risk auditor that scores every tool call and blocks or warns based on configurable thresholds |
+| `shimmering-forest` | CVSS-based risk auditor that scores every tool call and blocks or warns based on configurable thresholds; defaults to CVSS 4.0, with CVSS 3.1 also supported |
 | `semantic-versioning` | Determines the next semantic version number by inspecting git tags, release branches, and commit history |
 | `release-workflow` | Orchestrates a full release workflow: version detection, release branch, CI monitoring, and PR creation |
 | `branching-strategy` | Describes GitFlow and trunk-based branching conventions; referenced by release-workflow, conventional-commits, and github-pr to determine base branches and merge targets |
