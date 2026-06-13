@@ -26,13 +26,13 @@ Hermes Tweet adds these Hermes Agent tools:
 Use the published package:
 
 ```bash
-hermes plugins install hermes-tweet --enable
+hermes plugins install Xquik-dev/hermes-tweet --enable
 ```
 
 If the Hermes registry does not resolve it yet, install from PyPI:
 
 ```bash
-pip install hermes-tweet
+uv pip install --python ~/.hermes/hermes-agent/venv/bin/python hermes-tweet
 hermes plugins enable hermes-tweet
 ```
 
