@@ -10,7 +10,7 @@ A Claude Code plugin marketplace with skills for git workflows, code quality, sa
 
 [![PR Validation](https://github.com/jzills/claude-marketplace/actions/workflows/pr.yml/badge.svg)](https://github.com/jzills/claude-marketplace/actions/workflows/pr.yml)
 [![CodeQL](https://github.com/jzills/claude-marketplace/actions/workflows/codeql.yml/badge.svg)](https://github.com/jzills/claude-marketplace/actions/workflows/codeql.yml)
-![Plugins](https://img.shields.io/badge/plugins-12-D97757)
+![Plugins](https://img.shields.io/badge/plugins-13-D97757)
 
 </div>
 
@@ -57,6 +57,12 @@ Then install any plugin you need — see the full list below.
 | `skill-changelog` | Maintains a versioned CHANGELOG.md inside any skill directory being created or modified | `/plugin install skill-changelog@jzills` |
 | `auto-rewind` | Detects test failures and guides a `/rewind` to a clean checkpoint instead of fixing forward | `/plugin install auto-rewind@jzills` |
 | `prompt-reviewer` | Reviews and refines prompts for clarity, specificity, token efficiency, and missing context. Supports default single-pass review, `--deep` guided dialogue, and `--variants` mode | `/plugin install prompt-reviewer@jzills` |
+
+### Automation
+
+| Plugin | Description | Install |
+|--------|-------------|---------|
+| `hermes-tweet` | Installs and operates Hermes Tweet for X/Twitter workflows in Hermes Agent | `/plugin install hermes-tweet@jzills` |
 
 ## Maintenance
 
