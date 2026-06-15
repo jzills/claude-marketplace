@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/banner.svg" alt="claude-marketplace — Skills, workflows, and tools for Claude Code." width="800"/>
+</div>
+
 # claude-marketplace
 
 A Claude Code plugin marketplace (`jzills`) with plugins for git workflows, .NET testing, and skill management.
