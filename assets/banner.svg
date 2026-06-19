@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="160" viewBox="0 0 800 160">
+  <rect width="800" height="160" fill="#0d1117"/>
+  <rect y="158" width="800" height="2" fill="#21262d"/>
+
+  <!--
+    Claude terminal logo decoded from block characters.
+    Pixel size: 8w × 16h (1:2 ratio, matching terminal char aspect).
+    Grid: 18 cols × 5 rows. x_start=15, y_start=40.
+  -->
+  <g fill="#D97757" shape-rendering="crispEdges">
+    <!-- Row 0 (y=40): cols 3-14 -->
+    <rect x="39"  y="40"  width="96" height="16"/>
+
+    <!-- Row 1 (y=56): cols 3-4 | 6-11 | 13-14 -->
+    <rect x="39"  y="56"  width="16" height="16"/>
+    <rect x="63"  y="56"  width="48" height="16"/>
+    <rect x="119" y="56"  width="16" height="16"/>
+
+    <!-- Row 2 (y=72): cols 1-16 -->
+    <rect x="23"  y="72"  width="128" height="16"/>
+
+    <!-- Row 3 (y=88): cols 3-14 -->
+    <rect x="39"  y="88"  width="96" height="16"/>
+
+    <!-- Row 4 (y=104): cols 4 | 6 | 11 | 13 -->
+    <rect x="47"  y="104" width="8"  height="16"/>
+    <rect x="63"  y="104" width="8"  height="16"/>
+    <rect x="103" y="104" width="8"  height="16"/>
+    <rect x="119" y="104" width="8"  height="16"/>
+  </g>
+
+  <text font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="24" font-weight="bold" fill="#e6edf3" x="185" y="70">claude-marketplace</text>
+  <text font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="14" fill="#7d8590" x="185" y="94">Skills, workflows, and tools for Claude Code.</text>
+  <text font-family="'Courier New', 'Cascadia Code', monospace" font-size="12" fill="#3fb950" x="185" y="116">/plugin marketplace add jzills/claude-marketplace</text>
+</svg>
