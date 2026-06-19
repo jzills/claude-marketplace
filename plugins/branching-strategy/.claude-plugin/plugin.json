@@ -1,0 +1,5 @@
+{
+  "name": "branching-strategy",
+  "description": "Describes GitFlow and trunk-based branching conventions. Referenced by release-workflow, conventional-commits, and github-pr to determine base branches and merge targets.",
+  "version": "1.0.0"
+}

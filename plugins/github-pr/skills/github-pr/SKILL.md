@@ -26,15 +26,28 @@ git branch --show-current
 git remote get-url origin
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 git status --short
+git ls-remote --heads origin develop
 ```
 
 From this, determine:
 - **Current branch** — this becomes the PR's head branch
-- **Base branch** — use the GitHub default branch returned by `gh repo view` above. Only fall back to `origin/HEAD` detection if the `gh` command fails, and only ask the user if both methods fail.
+- **Base branch** — resolved as follows (unless an explicit base was passed by the calling skill, in which case use that and skip detection):
+
+  **If the caller provided an explicit base branch:** use it directly.
+
+  **Otherwise, detect strategy:**
+  - `git ls-remote --heads origin develop` returned output → GitFlow.
+    Route by current branch pattern:
+    - `feature/*`, `fix/*`, `chore/*`, `refactor/*`, `docs/*`, `test/*`, `ci/*`, `perf/*`, `style/*` → base: `develop`
+    - `release/*`, `hotfix/*` → base: GitHub default branch (from `gh repo view`)
+  - No `develop` branch → trunk-based → base: GitHub default branch (from `gh repo view`)
+
+  If both detection methods fail, ask the user.
+
 - **Commit summary** — all commits since the branch diverged from base:
 
 ```bash
-git log --oneline $(git merge-base HEAD origin/$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name') 2>/dev/null)..HEAD 2>/dev/null | head -20
+git log --oneline $(git merge-base HEAD origin/<base-branch> 2>/dev/null)..HEAD 2>/dev/null | head -20
 ```
 
 ## Pre-flight: branch and commit (if on default branch)
@@ -42,7 +55,7 @@ git log --oneline $(git merge-base HEAD origin/$(gh repo view --json defaultBran
 If the current branch equals the repo's default branch **and** there are uncommitted changes, do not proceed to push or create a PR yet. The user likely forgot to branch first. Handle it automatically:
 
 1. Check whether `conventional-commits` appears in the available skills list.
-   - If it does, invoke it via the Skill tool — it will handle branch naming and committing. Resume from Step 2 once it's done.
+   - If it does, invoke it via the Skill tool with args explicitly requesting a new branch **and** a commit (e.g., `"create a new branch and commit: <brief description of the changes>"`). This ensures conventional-commits creates a branch rather than committing directly to the default branch. Resume from Step 2 once it's done.
    - If it does not, run the fallback steps below.
 
 2. **Fallback — branch, commit, push:**
@@ -93,18 +106,7 @@ test -f .github/PULL_REQUEST_TEMPLATE.md && cat .github/PULL_REQUEST_TEMPLATE.md
 ```
 
 - If the file exists, read it and use it as the body structure. Fill in every placeholder section using the commit history and changed files — do not leave placeholder text unfilled.
-- If the file does not exist, fall back to the built-in template below:
-
-```
-## Summary
-<1–3 bullets describing what changed and why>
-
-## Changes
-<bullet list of the significant commits or files changed, if non-obvious>
-
-## Test plan
-<how to verify this works — fill in if you can infer it, otherwise leave a placeholder>
-```
+- If the file does not exist, use the default template in `assets/default-pr-template.md`. Fill in every section using the commit history and changed files — do not leave placeholder text unfilled.
 
 Generate the title and description and proceed directly to Step 4 — do not show the draft or ask for confirmation. Only show the title and description first if the user explicitly asked to review it (e.g., "show me the description", "let me review it first", "I want to check the PR body").
 

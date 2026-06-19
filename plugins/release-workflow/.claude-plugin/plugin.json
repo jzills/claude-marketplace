@@ -1,0 +1,5 @@
+{
+  "name": "release-workflow",
+  "description": "Orchestrates a full release workflow: version detection, release branch, CI monitoring, and PR creation.",
+  "version": "1.0.0"
+}

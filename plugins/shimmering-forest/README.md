@@ -1,6 +1,6 @@
 # shimmering-forest
 
-A Claude Code plugin that acts as a risk auditor for every tool call. Operations are scored using a model anchored to the [CVSS v3.1 specification](https://www.first.org/cvss/v3.1/specification-document) and either blocked, warned about, or silently allowed based on your configured thresholds.
+A Claude Code plugin that acts as a risk auditor for every tool call. Operations are scored using a model anchored to the [CVSS 4.0 specification](https://www.first.org/cvss/v4.0/specification-document) (CVSS 3.1 also supported) and either blocked, warned about, or silently allowed based on your configured thresholds.
 
 Every single tool call goes through the hook — nothing is skipped unless you explicitly add it to the exceptions list.
 
@@ -43,7 +43,7 @@ A `PreToolUse` hook intercepts every tool call before it executes. The hook:
 
 1. Reads the tool name and input from stdin (JSON)
 2. Checks the exceptions list — skips entirely if matched
-3. Scores the operation 0.0–10.0 using five weighted CVSS-inspired dimensions
+3. Scores the operation 0.0–10.0 using five weighted CVSS 4.0-inspired dimensions
 4. Classifies the score into a severity tier
 5. Compares the tier against your configured thresholds
 6. **Blocks**, **warns**, or **allows** — then writes an entry to the audit log
@@ -52,21 +52,35 @@ A `PreToolUse` hook intercepts every tool call before it executes. The hook:
 
 ## Scoring Model
 
-Scores are produced by a weighted sum of five dimensions, each rated 0.0–1.0. The weights are adapted from CVSS v3.1.
+Scores are produced by a weighted sum of five dimensions, each rated 0.0–1.0. The default model uses CVSS 4.0 dimension names; CVSS 3.1 is available via the `cvss_version` config field.
+
+### CVSS 4.0 Dimensions (default)
 
 | Dimension | Weight | What it measures |
 |-----------|--------|-----------------|
-| Integrity Impact (II) | 3.0 | Modifies or destroys data, especially irreversibly |
-| Confidentiality Impact (CI) | 2.5 | Exposes or destroys secrets, credentials, or PII |
-| Availability Impact (AI) | 2.0 | Disrupts system or service availability |
-| Scope (SC) | 1.5 | Affects resources beyond the immediate target |
+| Vulnerable System Integrity (VI) | 3.0 | Modifies or destroys data on the target system, especially irreversibly |
+| Vulnerable System Confidentiality (VC) | 2.5 | Exposes secrets, credentials, or PII from the target system |
+| Vulnerable System Availability (VA) | 2.0 | Disrupts availability of the target system or service |
+| Subsequent System Integrity (SI) | 1.5 | Affects resources or systems beyond the immediate target |
 | Privileges Required (PR) | 1.0 | Requires elevated privileges (sudo/root) |
+
+### CVSS 3.1 Dimensions (legacy, set `"cvss_version": "3.1"`)
+
+| Dimension | Weight | What it measures |
+|-----------|--------|-----------------|
+| Integrity Impact (II) | 3.0 | Same as VI |
+| Confidentiality Impact (CI) | 2.5 | Same as VC |
+| Availability Impact (AI) | 2.0 | Same as VA |
+| Scope (SC) | 1.5 | Same as SI |
+| Privileges Required (PR) | 1.0 | Same as PR |
+
+Numeric weights and scores are **identical** across versions — only the dimension key names differ.
 
 **Maximum score: 10.0** (all dimensions at 1.0)
 
 ### Severity Tiers
 
-Bands match CVSS v3.1 exactly:
+Bands are consistent across versions. CVSS 4.0 labels the 0.0 tier "None"; CVSS 3.1 labels it "Info".
 
 | Tier | Score Range | Default Action |
 |------|-------------|----------------|
@@ -74,7 +88,7 @@ Bands match CVSS v3.1 exactly:
 | High | 7.0 – 8.9 | Block |
 | Medium | 4.0 – 6.9 | Warn |
 | Low | 0.1 – 3.9 | Allow silently |
-| Info | 0.0 | Allow silently |
+| None / Info | 0.0 | Allow silently |
 
 ---
 
@@ -197,6 +211,7 @@ The config file lives at `~/.claude/shimmering-forest.config.json` and is create
 
 ```json
 {
+  "cvss_version": "4.0",
   "block_threshold": "High",
   "warn_threshold": "Medium",
   "show_all_scores": false,
@@ -211,6 +226,13 @@ The config file lives at `~/.claude/shimmering-forest.config.json` and is create
 ```
 
 ### Options
+
+**`cvss_version`** — Which CVSS version's dimension names to use for scoring output and audit logs.
+
+Valid values: `"4.0"`, `"3.1"`
+Default: `"4.0"`
+
+The numeric scores and severity thresholds are identical for both versions. The only difference is the dimension key names shown in block/warn output and audit log entries (e.g. `VI=1.0` vs `II=1.0`).
 
 **`block_threshold`** — Severity at which operations are blocked. Any operation scoring at or above this tier is stopped before execution.
 
@@ -260,7 +282,7 @@ Claude Code receives an error and cannot execute the operation:
 ```
 [shimmering-forest] Risk score 9.0 (Critical) exceeds block threshold High.
 Tool: Bash | Rule: bash-critical
-Dimensions: II=1.0 CI=1.0 AI=1.0 SC=1.0 PR=0.0
+Dimensions: VI=1.0 VC=1.0 VA=1.0 SI=1.0 PR=0.0
 To allow, lower block_threshold in ~/.claude/shimmering-forest.config.json
 ```
 
@@ -280,7 +302,7 @@ A warning is injected into Claude's context (operation still executes):
 
 ```
 [shimmering-forest] WARNING: Risk score 4.0 (Medium) — Bash (bash-medium).
-Threshold to block: High. Dimensions: II=1.0 CI=0.0 AI=0.0 SC=0.7 PR=0.0. Proceed with caution.
+Threshold to block: High. Dimensions: VI=1.0 VC=0.0 VA=0.0 SI=0.7 PR=0.0. Proceed with caution.
 ```
 
 ---
@@ -294,11 +316,12 @@ Every scored operation is appended to the log as a JSON line, regardless of deci
   "ts": "2026-05-07T18:29:31.306Z",
   "session_id": "abc123",
   "tool_name": "Bash",
+  "cvss_version": "4.0",
   "score": 9.0,
   "severity": "Critical",
   "decision": "block",
   "rule": "bash-critical",
-  "dims": {"II": 1.0, "CI": 1.0, "AI": 1.0, "SC": 1.0, "PR": 0.0},
+  "dims": {"VI": 1.0, "VC": 1.0, "VA": 1.0, "SI": 1.0, "PR": 0.0},
   "subject": "rm -rf /home/user/data",
   "cwd": "/home/user"
 }

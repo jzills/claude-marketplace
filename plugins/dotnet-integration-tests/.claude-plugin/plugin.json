@@ -1,0 +1,5 @@
+{
+  "name": "dotnet-integration-tests",
+  "description": "Writes, scaffolds, and configures infrastructure for production-quality NUnit integration tests for C# / .NET code.",
+  "version": "1.0.0"
+}

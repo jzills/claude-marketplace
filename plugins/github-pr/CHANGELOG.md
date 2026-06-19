@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!-- Next release entries go here -->
 
+## [1.5.0] - 2026-05-19T00:00:00Z
+
+### Changed
+- Step 1 base branch resolution now detects branching strategy when invoked standalone: if a remote `develop` branch exists (GitFlow), routes by current branch pattern — `feature/*`/`fix/*`/etc. target `develop`, `release/*`/`hotfix/*` target the GitHub default branch; if no `develop` exists (trunk-based), uses the GitHub default branch unchanged. Explicit base branches passed by calling skills (e.g. `create-release`) skip detection entirely.
+
 ## [1.4.0] - 2026-04-30T00:00:00Z
 
 ### Added

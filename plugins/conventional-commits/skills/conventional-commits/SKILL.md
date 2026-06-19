@@ -81,9 +81,19 @@ Check the current branch first:
 git branch --show-current
 ```
 
-If the user wants a new branch (they said "create a branch", "branch off", etc.), create and switch to it:
+If the user wants a new branch (they said "create a branch", "branch off", etc.), determine the correct base branch before creating it:
 
 ```bash
+git ls-remote --heads origin develop
+```
+
+- Non-empty → **REQUIRED SUB-SKILL:** Invoke `branching-strategy:gitflow` to confirm the base branch (typically `develop` for feature branches).
+- Empty → **REQUIRED SUB-SKILL:** Invoke `branching-strategy:trunk` to resolve the trunk branch name.
+
+Create the branch from the resolved base branch:
+
+```bash
+git checkout <base-branch> && git pull origin <base-branch>
 git checkout -b type/short-description
 ```
 

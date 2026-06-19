@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!-- Next release entries go here -->
 
+## [1.1.0] - 2026-05-19T00:00:00Z
+
+### Changed
+- Step 3 now detects the branching strategy before creating a new branch: if `git ls-remote --heads origin develop` returns output, invokes `branching-strategy:gitflow` and cuts the branch from `develop`; otherwise invokes `branching-strategy:trunk` and cuts from the resolved trunk branch — ensures feature branches are created from the correct base in both GitFlow and trunk-based repos
+
 ## [1.0.0] - 2026-05-18T00:00:00Z
 
 ### Added

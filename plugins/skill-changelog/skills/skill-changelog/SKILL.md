@@ -1,7 +1,7 @@
 ---
 name: skill-changelog
 description: Use this skill whenever a skill is being created, modified, or improved — including when writing or editing a SKILL.md, adding/removing references, updating scripts, or changing a skill description. Also trigger when a user says "add a changelog", "track skill changes", "initialize changelog", "update the changelog for this skill", "switch to auto", or "switch to opt-in". This skill must run as part of any skill editing workflow to ensure CHANGELOG.md stays current.
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Skill Changelog
@@ -16,8 +16,50 @@ Skills live in one of two places — both are valid targets:
 
 1. **Standalone skills**: `~/.claude/skills/<skill-name>/` or `.claude/skills/<skill-name>/`
 2. **Plugin skills**: `~/.claude/plugins/marketplaces/<marketplace>/plugins/<plugin>/skills/<skill-name>/`
+   — or in marketplace repos: `plugins/<plugin>/skills/<skill-name>/`
 
-`CHANGELOG.md` always lives in the skill's own directory, next to `SKILL.md`.
+`CHANGELOG.md` location depends on context — see **Location Detection** below.
+
+---
+
+## Location Detection
+
+Before writing `CHANGELOG.md`, determine where it belongs:
+
+1. **Resolve the real path** of the `SKILL.md` being edited — the path may be a symlink
+   (e.g. `~/.claude/skills/<name>/SKILL.md` symlinked to a repo location):
+   ```bash
+   readlink -f <path-to-SKILL.md>
+   ```
+   Use the resolved canonical path for all directory traversal below.
+2. Start from the skill's root directory (the folder containing the resolved `SKILL.md`).
+3. Walk up the directory tree (up to 4 levels) looking for `.claude-plugin/plugin.json`.
+4. **Plugin found:** the directory containing `.claude-plugin/` is the plugin root —
+   place `CHANGELOG.md` there.
+5. **Plugin not found:** the skill is standalone — place `CHANGELOG.md` next to `SKILL.md`.
+
+**Example — plugin skill (symlinked):**
+- Loaded via: `~/.claude/skills/create-release/SKILL.md` (symlink)
+- Resolved to: `[repo]/plugins/release-workflow/skills/create-release/SKILL.md`
+- Found: `[repo]/plugins/release-workflow/.claude-plugin/plugin.json`
+- CHANGELOG: `[repo]/plugins/release-workflow/CHANGELOG.md`
+
+**Example — standalone skill:**
+- Skill dir: `~/.claude/skills/conventional-commits/`
+- `readlink -f` returns same path (not a symlink)
+- No `.claude-plugin/plugin.json` found walking up
+- CHANGELOG: `~/.claude/skills/conventional-commits/CHANGELOG.md`
+
+### Plugin-level entry format
+
+When `CHANGELOG.md` is shared across multiple skills in a plugin, prefix each bullet
+with the skill name so it's clear what changed:
+
+```markdown
+### Added
+- `create-release`: initial skill — orchestrates version detection, release branch, CI monitoring, PR creation
+- `monitor-pipeline`: initial skill — watches GitHub Actions run, reports pass/fail
+```
 
 ---
 
@@ -33,7 +75,7 @@ If the file does not exist, default to **`opt-in`**.
 
 | Mode | Behavior |
 |---|---|
-| `opt-in` | Only write to `CHANGELOG.md` if it already exists in the skill's directory, or the user explicitly initializes it via this skill |
+| `opt-in` | Only write to `CHANGELOG.md` if it already exists at the resolved CHANGELOG location (plugin root for plugin skills, skill dir for standalone), or the user explicitly initializes it via this skill |
 | `auto` | Always write — create `CHANGELOG.md` if absent, then append an entry |
 
 ### Switching modes
@@ -49,10 +91,10 @@ When the user says anything like "switch to auto", "track all skills automatical
 
 Before finishing **any** skill editing task, silently apply this rule:
 
-1. Identify the skill's root directory (the folder containing the `SKILL.md` being edited)
+1. Identify the skill's root directory (the folder containing the `SKILL.md` being edited) and run **Location Detection** to determine the resolved CHANGELOG location.
 2. Read `~/.claude/skills/.skill-changelog/mode` (default: `opt-in`)
-3. **`opt-in` mode**: proceed only if `CHANGELOG.md` already exists in that directory
-4. **`auto` mode**: always proceed — create `CHANGELOG.md` if absent, then append an entry
+3. **`opt-in` mode**: proceed only if `CHANGELOG.md` already exists at the resolved location
+4. **`auto` mode**: always proceed — create `CHANGELOG.md` at the resolved location if absent, then append an entry
 
 Do this without prompting the user.
 
@@ -139,4 +181,6 @@ Use the current UTC time in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`.
 | Organic skill edit, no `CHANGELOG.md` | `auto` | Create `CHANGELOG.md` and add first entry |
 | Any skill edit, `CHANGELOG.md` exists | either | Append new versioned entry silently |
 | Multiple skills modified in one session | either | Add an entry to each skill's changelog |
+| Skill is part of a plugin (`.claude-plugin/plugin.json` found) | either | Place CHANGELOG.md at plugin root, not skill dir |
+| Multiple skills in same plugin modified in one session | either | Add one entry per skill to the shared plugin CHANGELOG, prefixing each bullet with the skill name |
 | User requests mode change | — | Update mode file, confirm to user |

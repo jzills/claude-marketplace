@@ -1,0 +1,5 @@
+{
+  "name": "pii-scanner",
+  "description": "Detects PII in every user prompt via a UserPromptSubmit hook and either hard-rejects the prompt or redacts it before Claude processes the request. Configurable via ~/.claude/pii-scanner.config.json.",
+  "version": "1.0.0"
+}

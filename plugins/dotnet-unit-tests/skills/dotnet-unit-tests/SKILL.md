@@ -18,23 +18,7 @@ Tests should be readable, maintainable, and actually catch bugs — not just sat
 
 ## Project Setup
 
-If no test project exists, scaffold one:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="NUnit" Version="4.*" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.*" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-    <PackageReference Include="Moq" Version="4.*" />
-    <PackageReference Include="FluentAssertions" Version="6.*" />
-  </ItemGroup>
-</Project>
-```
+If no test project exists, scaffold one using `assets/test-project.csproj` as the starting point.
 
 ---
 
@@ -115,27 +99,7 @@ public async Task PlaceOrder_WhenValid_SavesAndPublishes()
 }
 ```
 
-**Common Moq patterns:**
-
-```csharp
-// Return a value
-_mock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(someEntity);
-
-// Return null
-_mock.Setup(x => x.FindAsync(99)).ReturnsAsync((Entity?)null);
-
-// Throw an exception
-_mock.Setup(x => x.SaveAsync(It.IsAny<Entity>())).ThrowsAsync(new DbException());
-
-// Match any argument of a type
-_mock.Setup(mock => mock.Publish(It.IsAny<OrderEvent>()));
-
-// Capture an argument for deeper inspection
-Entity? captured = null;
-_mock.Setup(mock => mock.SaveAsync(It.IsAny<Entity>()))
-     .Callback<Entity>(e => captured = e)
-     .Returns(Task.CompletedTask);
-```
+**Common Moq patterns:** See `references/moq-patterns.md` for setup examples (return values, nulls, exceptions, argument matching, and capture).
 
 ---
 

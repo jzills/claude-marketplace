@@ -40,6 +40,7 @@ If the file exists, display it as a formatted table:
 
 | Setting | Value |
 |---------|-------|
+| cvss_version | {cvss_version} |
 | block_threshold | {block_threshold} |
 | warn_threshold | {warn_threshold} |
 | show_all_scores | {show_all_scores} |
@@ -49,7 +50,9 @@ If the file exists, display it as a formatted table:
 | Excepted tools | {exceptions.tool_names joined by ", "} |
 | Excepted patterns | {count of exceptions.command_patterns} custom patterns |
 
-Also show the CVSS v3.1-aligned severity bands for reference:
+Also show the severity bands for reference. Adjust the tier label based on `cvss_version`:
+- CVSS 4.0: show "None" for the 0.0 tier and list dimension names as VI / VC / VA / SI / PR
+- CVSS 3.1: show "Info" for the 0.0 tier and list dimension names as II / CI / AI / SC / PR
 
 | Tier | Score Range | Default Action |
 |------|-------------|----------------|
@@ -57,7 +60,7 @@ Also show the CVSS v3.1-aligned severity bands for reference:
 | High | 7.0–8.9 | Block |
 | Medium | 4.0–6.9 | Warn |
 | Low | 0.1–3.9 | Allow |
-| Info | 0.0 | Allow |
+| None / Info | 0.0 | Allow |
 
 ## Step 2 — Read recent log entries
 

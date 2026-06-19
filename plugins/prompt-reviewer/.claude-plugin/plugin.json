@@ -1,0 +1,5 @@
+{
+  "name": "prompt-reviewer",
+  "description": "Reviews and refines prompts for clarity, specificity, token efficiency, and missing context. Supports default single-pass review, --deep guided dialogue, and --variants mode.",
+  "version": "1.0.0"
+}

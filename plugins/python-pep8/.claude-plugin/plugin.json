@@ -1,0 +1,5 @@
+{
+  "name": "python-pep8",
+  "description": "Reviews, fixes, and writes PEP 8 compliant Python code.",
+  "version": "1.0.0"
+}

@@ -1,0 +1,4 @@
+{
+  "mode": "block",
+  "_comment_mode": "block = hard-reject prompt; warn = redact PII in-place and continue"
+}

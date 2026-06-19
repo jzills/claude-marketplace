@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
 shimmering-forest risk auditor
-Scores every Claude Code tool call using a CVSS v3.1-inspired model.
-Spec: https://www.first.org/cvss/v3.1/specification-document
+Scores every Claude Code tool call using a CVSS-inspired model.
 
-Severity bands (CVSS v3.1):
+CVSS 4.0 (default): https://www.first.org/cvss/v4.0/specification-document
+CVSS 3.1 (legacy):  https://www.first.org/cvss/v3.1/specification-document
+
+Severity bands (both versions):
   Critical  9.0 – 10.0
   High      7.0 – 8.9
   Medium    4.0 – 6.9
   Low       0.1 – 3.9
-  Info      0.0
+  None/Info 0.0        (4.0 uses "None", 3.1 uses "Info")
 """
 import json
 import os
@@ -18,25 +20,36 @@ import sys
 from datetime import datetime, timezone
 
 # ---------------------------------------------------------------------------
-# Scoring weights (CVSS v3.1 dimensions adapted for tool-call risk)
+# Scoring weights — CVSS 3.1 key names used internally for computation.
+# In CVSS 4.0 mode keys are translated before output/logging:
+#   II → VI  (Vulnerable System Integrity)
+#   CI → VC  (Vulnerable System Confidentiality)
+#   AI → VA  (Vulnerable System Availability)
+#   SC → SI  (Subsequent System Integrity)
+#   PR → PR  (Privileges Required — unchanged)
+# Weights are numerically identical across versions.
 # ---------------------------------------------------------------------------
 WEIGHTS = {
-    "II": 3.0,   # Integrity Impact   — modifies/deletes data, especially irreversibly
-    "CI": 2.5,   # Confidentiality    — exposes secrets, credentials, PII
-    "AI": 2.0,   # Availability       — disrupts system/service availability
-    "SC": 1.5,   # Scope              — affects resources beyond initial target
-    "PR": 1.0,   # Privileges Req'd   — requires elevated privileges (sudo/root)
+    "II": 3.0,   # 3.1: Integrity Impact    / 4.0: Vulnerable System Integrity (VI)
+    "CI": 2.5,   # 3.1: Confidentiality     / 4.0: Vulnerable System Confidentiality (VC)
+    "AI": 2.0,   # 3.1: Availability        / 4.0: Vulnerable System Availability (VA)
+    "SC": 1.5,   # 3.1: Scope               / 4.0: Subsequent System Integrity (SI)
+    "PR": 1.0,   # Privileges Required (unchanged)
 }
 MAX_SCORE = sum(WEIGHTS.values())  # 10.0
+
+# 4.0 key names for output/logging (same weights, translated keys)
+DIM_MAP_31_TO_40 = {"II": "VI", "CI": "VC", "AI": "VA", "SC": "SI", "PR": "PR"}
 
 SEVERITY_TIERS = [
     ("Critical", 9.0),
     ("High",     7.0),
     ("Medium",   4.0),
     ("Low",      0.1),
-    ("Info",     0.0),
 ]
-SEVERITY_ORDER = ["Info", "Low", "Medium", "High", "Critical"]
+# "None" (CVSS 4.0) and "Info" (CVSS 3.1) are both valid zero-severity labels.
+# Both appear in the order so threshold configs can use either name.
+SEVERITY_ORDER = ["None", "Info", "Low", "Medium", "High", "Critical"]
 
 # ---------------------------------------------------------------------------
 # Bash command patterns — evaluated in priority order, first match wins
@@ -290,11 +303,17 @@ def zero_dims() -> dict:
     return {k: 0.0 for k in WEIGHTS}
 
 
-def classify(score: float) -> str:
+def translate_dims(dims: dict, cvss_version: str) -> dict:
+    if cvss_version == "3.1":
+        return dims
+    return {DIM_MAP_31_TO_40[k]: v for k, v in dims.items()}
+
+
+def classify(score: float, cvss_version: str = "4.0") -> str:
     for name, threshold in SEVERITY_TIERS:
         if score >= threshold:
             return name
-    return "Info"
+    return "None" if cvss_version == "4.0" else "Info"
 
 
 def severity_gte(a: str, b: str) -> bool:
@@ -413,6 +432,7 @@ USER_CONFIG_PATH = os.path.expanduser("~/.claude/shimmering-forest.config.json")
 DEFAULT_CONFIG_PATH = os.path.join(PLUGIN_ROOT, "config", "default-config.json")
 
 DEFAULTS = {
+    "cvss_version": "4.0",
     "block_threshold": "High",
     "warn_threshold": "Medium",
     "show_all_scores": False,
@@ -438,6 +458,8 @@ def load_config() -> dict:
         for k, v in DEFAULTS.items():
             if k not in cfg:
                 cfg[k] = v
+        if cfg.get("cvss_version") not in ("3.1", "4.0"):
+            cfg["cvss_version"] = "4.0"
         return cfg
     except Exception:
         return dict(DEFAULTS)
@@ -500,36 +522,59 @@ def block_output(score: float, severity: str, tool_name: str, rule: str, dims: d
     block_mode = config.get("block_mode", "hard")
     block_threshold = config.get("block_threshold", "High")
 
+    sep = "─" * 54
     if block_mode == "soft":
         print(
-            f"[shimmering-forest] SOFT BLOCK: Risk score {score:.1f} ({severity}) — {tool_name} ({rule}).\n"
-            f"This operation exceeds the block threshold ({block_threshold}). "
-            f"Do NOT proceed until the user explicitly confirms they want to run this command.\n"
-            f"Dimensions: {dims_str(dims)}",
+            f"\n{sep}\n"
+            f"  shimmering-forest  SOFT BLOCK\n"
+            f"{sep}\n"
+            f"  Risk Score : {score:.1f} / 10.0  ({severity})\n"
+            f"  Threshold  : {block_threshold}\n"
+            f"  Tool       : {tool_name}\n"
+            f"  Rule       : {rule}\n"
+            f"  Dimensions : {dims_str(dims)}\n"
+            f"\n"
+            f"  Do NOT proceed until the user explicitly confirms.\n"
+            f"{sep}",
             file=sys.stdout,
             flush=True,
         )
         sys.exit(0)
     else:
-        payload = json.dumps({
-            "decision": "deny",
-            "reason": (
-                f"[shimmering-forest] Risk score {score:.1f} ({severity}) exceeds block threshold {block_threshold}.\n"
-                f"Tool: {tool_name} | Rule: {rule}\n"
-                f"Dimensions: {dims_str(dims)}\n"
-                f"To allow, lower block_threshold in ~/.claude/shimmering-forest.config.json"
-            ),
-        })
-        print(payload, file=sys.stderr, flush=True)
+        print(
+            f"\n{sep}\n"
+            f"  shimmering-forest  BLOCKED\n"
+            f"{sep}\n"
+            f"  Risk Score : {score:.1f} / 10.0  ({severity})\n"
+            f"  Threshold  : {block_threshold}\n"
+            f"  Tool       : {tool_name}\n"
+            f"  Rule       : {rule}\n"
+            f"  Dimensions : {dims_str(dims)}\n"
+            f"\n"
+            f"  To allow   : lower block_threshold in\n"
+            f"               ~/.claude/shimmering-forest.config.json\n"
+            f"{sep}",
+            file=sys.stderr,
+            flush=True,
+        )
         sys.exit(2)
 
 
 def warn_output(score: float, severity: str, tool_name: str, rule: str, dims: dict, config: dict) -> None:
     block_threshold = config.get("block_threshold", "High")
+    sep = "─" * 54
     print(
-        f"[shimmering-forest] WARNING: Risk score {score:.1f} ({severity}) — {tool_name} ({rule}). "
-        f"Threshold to block: {block_threshold}. "
-        f"Dimensions: {dims_str(dims)}. Proceed with caution.",
+        f"\n{sep}\n"
+        f"  shimmering-forest  WARNING\n"
+        f"{sep}\n"
+        f"  Risk Score : {score:.1f} / 10.0  ({severity})\n"
+        f"  Threshold  : {block_threshold}\n"
+        f"  Tool       : {tool_name}\n"
+        f"  Rule       : {rule}\n"
+        f"  Dimensions : {dims_str(dims)}\n"
+        f"\n"
+        f"  Proceed with caution.\n"
+        f"{sep}",
         file=sys.stdout,
         flush=True,
     )
@@ -571,14 +616,17 @@ def main() -> None:
     if is_excepted(tool_name, subject, config):
         sys.exit(0)
 
-    score, dims, rule = score_tool(tool_name, tool_input)
-    severity = classify(score)
+    cvss_version = config.get("cvss_version", "4.0")
+    score, dims_raw, rule = score_tool(tool_name, tool_input)
+    dims = translate_dims(dims_raw, cvss_version)
+    severity = classify(score, cvss_version)
     decision = decide(severity, config)
 
     write_audit_log(config, {
         "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",
         "session_id": session_id,
         "tool_name": tool_name,
+        "cvss_version": cvss_version,
         "score": score,
         "severity": severity,
         "decision": decision,

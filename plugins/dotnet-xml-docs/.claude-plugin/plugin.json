@@ -1,0 +1,5 @@
+{
+  "name": "dotnet-xml-docs",
+  "description": "Writes and reviews XML documentation comments (///) for C# / .NET public APIs.",
+  "version": "1.0.0"
+}
