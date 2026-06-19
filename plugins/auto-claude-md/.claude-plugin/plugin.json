@@ -1,0 +1,5 @@
+{
+  "name": "auto-claude-md",
+  "description": "Keeps CLAUDE.md in sync with the codebase by reviewing commits and patching stale documentation.",
+  "version": "1.0.0"
+}
