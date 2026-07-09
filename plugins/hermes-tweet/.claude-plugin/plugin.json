@@ -1,0 +1,23 @@
+{
+  "name": "hermes-tweet",
+  "description": "Hermes Agent plugin guidance for X/Twitter automation through Xquik.",
+  "version": "0.1.6",
+  "author": {
+    "name": "Xquik"
+  },
+  "homepage": "https://github.com/Xquik-dev/hermes-tweet#readme",
+  "repository": "https://github.com/Xquik-dev/hermes-tweet",
+  "license": "MIT",
+  "keywords": [
+    "hermes-agent",
+    "hermes-plugin",
+    "xquik",
+    "twitter",
+    "x",
+    "social-media",
+    "automation"
+  ],
+  "skills": [
+    "./skills/"
+  ]
+}
