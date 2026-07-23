@@ -10,7 +10,7 @@ A Claude Code plugin marketplace with skills for git workflows, code quality, sa
 
 [![PR Validation](https://github.com/jzills/claude-marketplace/actions/workflows/pr.yml/badge.svg)](https://github.com/jzills/claude-marketplace/actions/workflows/pr.yml)
 [![CodeQL](https://github.com/jzills/claude-marketplace/actions/workflows/codeql.yml/badge.svg)](https://github.com/jzills/claude-marketplace/actions/workflows/codeql.yml)
-![Plugins](https://img.shields.io/badge/plugins-12-D97757)
+![Plugins](https://img.shields.io/badge/plugins-13-D97757)
 
 </div>
 
@@ -49,6 +49,7 @@ Then install any plugin you need — see the full list below.
 | Plugin | Description | Install |
 |--------|-------------|---------|
 | `shimmering-forest` | CVSS-based risk auditor that scores every tool call and blocks or warns based on configurable thresholds; defaults to CVSS 4.0 with CVSS 3.1 support | `/plugin install shimmering-forest@jzills` |
+| `claudeignore` | Enforces a gitignore-style `.claudeignore` file — matched paths are denied to every tool before the call runs, and stripped out of Grep/Glob results | `/plugin install claudeignore@jzills` |
 
 ### Skill Management
 
