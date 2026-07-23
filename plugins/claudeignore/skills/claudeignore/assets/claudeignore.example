@@ -1,0 +1,47 @@
+# .claudeignore — paths Claude may never access, for any reason.
+#
+# Gitignore syntax. The last matching pattern wins, so put exceptions after the
+# rule they carve out of. Delete what does not apply to this project.
+#
+# This is an access-control list, not a noise filter. Keep build output and
+# dependencies in .gitignore instead: ignoring them here also blocks the commands
+# that operate on them.
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.template
+secrets/**
+*.secret
+
+# Keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+id_rsa
+id_ed25519
+id_ecdsa
+
+# Cloud and service credentials
+.aws/**
+.gcloud/**
+credentials
+credentials.json
+service-account*.json
+client_secret*.json
+*.kubeconfig
+
+# Package and registry auth
+.npmrc
+.pypirc
+.netrc
+
+# Data that should not reach a model
+*.sql.gz
+*.dump
+dumps/**
+backups/**
+fixtures/production/**

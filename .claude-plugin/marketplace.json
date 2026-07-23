@@ -58,6 +58,14 @@
       "keywords": ["security", "risk", "audit", "hooks", "cvss"]
     },
     {
+      "name": "claudeignore",
+      "source": "./plugins/claudeignore",
+      "description": "Enforces a gitignore-style .claudeignore file. Matched paths are denied to every tool before the call runs and stripped out of Grep/Glob results.",
+      "author": { "name": "Joshua Zillwood" },
+      "license": "MIT",
+      "keywords": ["security", "hooks", "gitignore", "access-control", "secrets"]
+    },
+    {
       "name": "semantic-versioning",
       "source": "./plugins/semantic-versioning",
       "description": "Determines the next semantic version number by inspecting git tags, release branches, and commit history.",

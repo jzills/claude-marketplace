@@ -1,0 +1,5 @@
+{
+  "name": "claudeignore",
+  "description": "Enforces a gitignore-style .claudeignore file. Paths it matches are denied to every tool before the call runs, and stripped out of Grep/Glob results. Configurable via ~/.claude/claudeignore.config.json.",
+  "version": "1.0.0"
+}

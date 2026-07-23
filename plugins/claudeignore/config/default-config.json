@@ -1,0 +1,21 @@
+{
+  "bash_inspection": true,
+  "_comment_bash_inspection": "Inspect Bash commands for references to ignored paths. Turn off to only guard the structured file tools.",
+
+  "filter_search_results": true,
+  "_comment_filter_search_results": "Strip ignored paths out of Grep/Glob results instead of letting them through.",
+
+  "use_global_ignore": true,
+  "_comment_use_global_ignore": "Also apply ~/.claude/.claudeignore, matched against absolute paths anywhere on the machine.",
+
+  "announce_on_session_start": true,
+  "_comment_announce_on_session_start": "Tell Claude the active patterns at session start so it does not discover them one denial at a time.",
+
+  "on_error": "deny",
+  "_comment_on_error": "deny = fail closed if an ignore file exists but cannot be evaluated; allow = fail open.",
+
+  "audit_log": true,
+  "_comment_audit_log": "Append a JSONL entry for every denial and every filtered result.",
+
+  "audit_log_path": "~/.claude/claudeignore.log"
+}
